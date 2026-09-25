@@ -1,0 +1,14 @@
+{
+  "name": "queless",
+  "private": true,
+  "description": "QueLess — join the queue, not the crowd. Separate web (React) and server (Node) apps + PostgreSQL.",
+  "scripts": {
+    "install:all": "npm --prefix server install && npm --prefix web install",
+    "dev:server": "npm --prefix server run dev",
+    "dev:web": "npm --prefix web run dev",
+    "db:setup": "npm --prefix server run db:setup",
+    "demo:reset": "npm --prefix server run demo:reset",
+    "test": "npm --prefix server test && npm --prefix web test",
+    "build": "npm --prefix web run build"
+  }
+}

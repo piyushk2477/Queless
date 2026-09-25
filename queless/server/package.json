@@ -1,0 +1,43 @@
+{
+  "name": "queless-server",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "QueLess API — session auth, all reads/writes, business rules, realtime (Socket.IO) and background jobs",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "start": "node src/index.js",
+    "db:setup": "node scripts/db-setup.js",
+    "db:seed": "node scripts/db-setup.js --seed-only",
+    "demo:reset": "node scripts/reset-demo.js",
+    "test": "vitest run",
+    "lint": "node --check src/index.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "connect-pg-simple": "^10.0.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.3",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.7.0",
+    "express-session": "^1.19.0",
+    "helmet": "^8.3.0",
+    "multer": "^2.4.0",
+    "node-cron": "^4.6.0",
+    "pg": "^8.23.0",
+    "pino": "^10.3.1",
+    "pino-pretty": "^13.1.3",
+    "socket.io": "^4.8.3",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "socket.io-client": "^4.8.3",
+    "supertest": "^7.3.0",
+    "vitest": "^5.0.1"
+  }
+}
