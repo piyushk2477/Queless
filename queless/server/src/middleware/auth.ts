@@ -1,8 +1,10 @@
 import { one } from '../db/pool.js';
 import { err } from '../lib/errors.js';
+import type { NextFunction, Request, RequestHandler, Response } from 'express';
+import type { AuthUser, UserRole } from '../types.js';
 
 /** Load the logged-in user from the session (fresh from the DB every request). */
-async function loadUser(req) {
+async function loadUser(req: Request): Promise<AuthUser | null> {
   const userId = req.session?.userId;
   if (!userId) return null;
   const u = await one('select id, email, full_name, phone, role, is_blocked from users where id = $1', [userId]);
@@ -14,19 +16,19 @@ async function loadUser(req) {
   return { id: u.id, email: u.email, fullName: u.full_name, phone: u.phone, role: u.role };
 }
 
-export async function requireAuth(req, _res, next) {
-  if (!req.user) req.user = await loadUser(req);
+export async function requireAuth(req: Request, _res: Response, next: NextFunction) {
+  if (!req.user) req.user = (await loadUser(req)) ?? undefined;
   if (!req.user) throw err.unauthorized();
   next();
 }
 
 /** Attach req.user when logged in, but don't require it. */
-export async function optionalAuth(req, _res, next) {
-  if (!req.user) req.user = await loadUser(req).catch(() => null);
+export async function optionalAuth(req: Request, _res: Response, next: NextFunction) {
+  if (!req.user) req.user = (await loadUser(req).catch(() => null)) ?? undefined;
   next();
 }
 
-export function requireRole(...roles) {
+export function requireRole(...roles: UserRole[]): RequestHandler {
   return (req, _res, next) => {
     if (!req.user) throw err.unauthorized();
     if (!roles.includes(req.user.role)) throw err.forbidden();
@@ -39,7 +41,7 @@ export function requireRole(...roles) {
 // ---------------------------------------------------------------------------
 
 /** 'manager' | 'staff' | null for this user in this business. */
-export async function memberRole(user, businessId) {
+export async function memberRole(user: Pick<AuthUser, 'id' | 'role'> | undefined, businessId: string) {
   if (!user) return null;
   if (user.role === 'admin') return 'manager';
   const row = await one(
@@ -53,7 +55,7 @@ export async function memberRole(user, businessId) {
   return row.role ?? null;
 }
 
-export async function assertMember(user, businessId, min = 'staff') {
+export async function assertMember(user: Pick<AuthUser, 'id' | 'role'>, businessId: string, min: 'staff' | 'manager' = 'staff') {
   const role = await memberRole(user, businessId);
   if (!role) throw err.forbidden('You are not a member of this business');
   if (min === 'manager' && role !== 'manager') throw err.forbidden('Only managers can do this');
@@ -63,7 +65,7 @@ export async function assertMember(user, businessId, min = 'staff') {
 const OWNED_TABLES = { queues: 'Queue', counters: 'Counter', services: 'Service', queue_entries: 'Token', kiosk_devices: 'Kiosk' };
 
 /** Which business does this queue / counter / service / token / kiosk belong to? */
-export async function businessOf(table, id) {
+export async function businessOf(table: keyof typeof OWNED_TABLES, id: string) {
   if (!OWNED_TABLES[table]) throw new Error(`bad table ${table}`);
   const row = await one(`select business_id from ${table} where id = $1`, [id]);
   if (!row) throw err.notFound(OWNED_TABLES[table]);

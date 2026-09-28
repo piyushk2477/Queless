@@ -1,7 +1,12 @@
 // One error shape for the whole API: { code, message }.
+import type { DbError } from '../types.js';
 
 export class AppError extends Error {
-  constructor(status, code, message) {
+  readonly status: number;
+  readonly code: string;
+  declare cause?: unknown;
+
+  constructor(status: number, code: string, message: string) {
     super(message);
     this.status = status;
     this.code = code;
@@ -31,7 +36,7 @@ export const STATUS_BY_CODE = {
 };
 
 export const err = {
-  validation: (msg) => new AppError(400, 'VALIDATION', msg),
+  validation: (msg: string) => new AppError(400, 'VALIDATION', msg),
   unauthorized: (msg = 'Please log in') => new AppError(401, 'UNAUTHORIZED', msg),
   forbidden: (msg = 'You do not have access to this') => new AppError(403, 'FORBIDDEN', msg),
   notFound: (what = 'Resource') => new AppError(404, 'NOT_FOUND', `${what} not found`),
@@ -41,16 +46,17 @@ export const err = {
  * Postgres functions raise: message = CODE, detail = human text, hint = 'queless'.
  * Other Postgres errors are mapped by SQLSTATE.
  */
-export function fromDb(e) {
-  if (e instanceof AppError) return e;
-  if (e.hint === 'queless') {
-    return new AppError(STATUS_BY_CODE[e.message] ?? 400, e.message, e.detail ?? e.message);
+export function fromDb(e: unknown): AppError {
+  const error = e as DbError;
+  if (error instanceof AppError) return error;
+  if (error.hint === 'queless') {
+    return new AppError(STATUS_BY_CODE[error.message as keyof typeof STATUS_BY_CODE] ?? 400, error.message, error.detail ?? error.message);
   }
-  if (e.code === '23505') return new AppError(409, 'DUPLICATE', 'That value is already taken');
-  if (e.code === '23503') return new AppError(409, 'STATE_CONFLICT', 'This item is still in use');
-  if (e.code === '23514') return err.validation('A value is out of the allowed range');
-  if (e.code === '22P02') return err.validation('Invalid id');
-  const wrapped = new AppError(500, 'DB_ERROR', e.message);
+  if (error.code === '23505') return new AppError(409, 'DUPLICATE', 'That value is already taken');
+  if (error.code === '23503') return new AppError(409, 'STATE_CONFLICT', 'This item is still in use');
+  if (error.code === '23514') return err.validation('A value is out of the allowed range');
+  if (error.code === '22P02') return err.validation('Invalid id');
+  const wrapped = new AppError(500, 'DB_ERROR', error.message);
   wrapped.cause = e;
   return wrapped;
 }

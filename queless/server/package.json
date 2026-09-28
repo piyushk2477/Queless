@@ -4,15 +4,17 @@
   "private": true,
   "type": "module",
   "description": "QueLess API — session auth, all reads/writes, business rules, realtime (Socket.IO) and background jobs",
-  "main": "src/index.js",
+  "main": "dist/index.js",
   "scripts": {
-    "dev": "node --watch src/index.js",
-    "start": "node src/index.js",
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
     "db:setup": "node scripts/db-setup.js",
     "db:seed": "node scripts/db-setup.js --seed-only",
     "demo:reset": "node scripts/reset-demo.js",
     "test": "vitest run",
-    "lint": "node --check src/index.js"
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "tsc -p tsconfig.json --noEmit"
   },
   "engines": {
     "node": ">=20"
@@ -36,7 +38,17 @@
     "zod": "^4.6.5"
   },
   "devDependencies": {
+    "@types/connect-pg-simple": "^7.0.0",
+    "@types/cookie-parser": "^1.4.10",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/express-session": "^1.18.2",
+    "@types/multer": "^2.0.0",
+    "@types/node": "^24.10.0",
+    "@types/pg": "^8.15.5",
     "socket.io-client": "^4.8.3",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
     "supertest": "^7.3.0",
     "vitest": "^5.0.1"
   }

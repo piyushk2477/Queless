@@ -1,5 +1,6 @@
 import connectPgSimple from 'connect-pg-simple';
 import session from 'express-session';
+import type { Request } from 'express';
 import { env } from '../config/env.js';
 import { pool } from '../db/pool.js';
 
@@ -29,6 +30,6 @@ export const sessionMiddleware = session({
 });
 
 /** Promise helpers around express-session callbacks. */
-export const regenerate = (req) => new Promise((ok, fail) => req.session.regenerate((e) => (e ? fail(e) : ok())));
-export const save = (req) => new Promise((ok, fail) => req.session.save((e) => (e ? fail(e) : ok())));
-export const destroy = (req) => new Promise((ok) => req.session.destroy(() => ok()));
+export const regenerate = (req: Request) => new Promise<void>((ok, fail) => req.session.regenerate((e) => (e ? fail(e) : ok())));
+export const save = (req: Request) => new Promise<void>((ok, fail) => req.session.save((e) => (e ? fail(e) : ok())));
+export const destroy = (req: Request) => new Promise<void>((ok) => req.session.destroy(() => ok()));

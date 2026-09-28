@@ -2,6 +2,8 @@ import pg from 'pg';
 import { env } from '../config/env.js';
 import { fromDb } from '../lib/errors.js';
 
+export type DbRow = Record<string, any>;
+
 // Parse numbers as numbers and dates as 'YYYY-MM-DD' strings (not JS Dates).
 pg.types.setTypeParser(20, (v) => Number.parseInt(v, 10)); // int8 / count(*)
 pg.types.setTypeParser(1700, (v) => Number.parseFloat(v)); // numeric
@@ -16,23 +18,23 @@ export const poolConfig = {
 export const pool = new pg.Pool({ ...poolConfig, max: 10, idleTimeoutMillis: 30_000 });
 
 /** Run SQL with $1..$n params; DB errors become AppErrors. */
-export async function query(text, params = []) {
+export async function query<T extends DbRow = DbRow>(text: string, params: unknown[] = []) {
   try {
-    return await pool.query(text, params);
+    return await pool.query<T>(text, params);
   } catch (e) {
     throw fromDb(e);
   }
 }
 
-export const many = async (text, params) => (await query(text, params)).rows;
-export const one = async (text, params) => (await query(text, params)).rows[0] ?? null;
+export const many = async <T extends DbRow = DbRow>(text: string, params: unknown[] = []) => (await query<T>(text, params)).rows;
+export const one = async <T extends DbRow = DbRow>(text: string, params: unknown[] = []) => (await query<T>(text, params)).rows[0] ?? null;
 
 /**
  * Call a Postgres function with named arguments:
  *   fn('join_queue', { p_queue_id: id, p_source: 'app' })
  * `name` is always a constant from our code (never user input).
  */
-export async function fn(name, args = {}) {
+export async function fn<T = DbRow>(name: string, args: Record<string, unknown> = {}): Promise<T> {
   const keys = Object.keys(args);
   const list = keys.map((k, i) => `${k} => $${i + 1}`).join(', ');
   const values = keys.map((k) => (args[k] !== null && typeof args[k] === 'object' && !(args[k] instanceof Date) ? JSON.stringify(args[k]) : args[k]));
@@ -41,7 +43,7 @@ export async function fn(name, args = {}) {
 }
 
 /** Same, for functions that RETURN TABLE. */
-export async function fnRows(name, args = {}) {
+export async function fnRows<T extends DbRow = DbRow>(name: string, args: Record<string, unknown> = {}): Promise<T[]> {
   const keys = Object.keys(args);
   const list = keys.map((k, i) => `${k} => $${i + 1}`).join(', ');
   const values = keys.map((k) => (args[k] !== null && typeof args[k] === 'object' ? JSON.stringify(args[k]) : args[k]));
@@ -49,7 +51,7 @@ export async function fnRows(name, args = {}) {
 }
 
 /** Run several statements in one transaction. */
-export async function tx(work) {
+export async function tx<T>(work: (client: pg.PoolClient) => Promise<T>): Promise<T> {
   const client = await pool.connect();
   try {
     await client.query('begin');

@@ -5,6 +5,7 @@ import { env } from '../config/env.js';
 import { one, poolConfig } from '../db/pool.js';
 import { logger } from '../lib/logger.js';
 import { memberRole } from '../middleware/auth.js';
+import type { UserRole } from '../types.js';
 import { processNearAlerts } from './alerts.js';
 
 /**
@@ -49,7 +50,7 @@ export function initRealtime(httpServer, sessionMiddleware) {
       try {
         const businessId = z.guid().parse(payload?.businessId);
         const uid = socket.request.session?.userId;
-        const user = uid ? await one('select id, role from users where id = $1 and not is_blocked', [uid]) : null;
+        const user = uid ? await one<{ id: string; role: UserRole }>('select id, role from users where id = $1 and not is_blocked', [uid]) : null;
         if (!(await memberRole(user, businessId))) throw new Error('forbidden');
         socket.join(`business:${businessId}`);
         ack?.({ ok: true });

@@ -14,7 +14,7 @@ export function startJobs() {
     if (running) return; // never overlap
     running = true;
     try {
-      const expired = await fn('expire_called_entries');
+      const expired = await fn<number>('expire_called_entries');
       if (expired > 0) logger.info({ expired }, '⏱  auto no-show');
     } catch (e) {
       logger.error({ e }, 'expire job failed');

@@ -49,7 +49,8 @@ const ACTIONS = {
 };
 
 staffRouter.post('/entries/:id/:action', requireAuth, async (req, res, next) => {
-  const action = ACTIONS[req.params.action];
+  const actionKey = typeof req.params.action === 'string' ? req.params.action : '';
+  const action = ACTIONS[actionKey as keyof typeof ACTIONS];
   if (!action) return next(); // unknown action → 404
   const entryId = param(req.params, 'id');
   await assertMember(req.user, await businessOf('queue_entries', entryId), 'staff');

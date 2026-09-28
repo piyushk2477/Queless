@@ -1,8 +1,9 @@
 import { z } from 'zod';
+import type { ZodType } from 'zod';
 import { err } from './errors.js';
 
 /** Parse input with a Zod schema; the first problem becomes a VALIDATION error. */
-export function parse(schema, value) {
+export function parse<T>(schema: ZodType<T>, value: unknown): T {
   const r = schema.safeParse(value);
   if (!r.success) {
     const issue = r.error.issues[0];
@@ -15,7 +16,7 @@ export function parse(schema, value) {
 export const id = z.guid();
 
 /** Read and validate a UUID route param. */
-export const param = (params, name) => parse(id, params[name]);
+export const param = (params: object, name: string) => parse(id, (params as Record<string, string | undefined>)[name]);
 
 // Shared shapes
 export const notesSchema = z
