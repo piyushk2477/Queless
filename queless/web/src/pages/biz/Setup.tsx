@@ -9,7 +9,7 @@ import { api, errorMessage } from '../../lib/api';
 import { dateTimeIST } from '../../lib/format';
 import { useBiz } from './BizLayout';
 
-async function run(fnToRun, ok) {
+async function run(fnToRun, ok?) {
   try {
     await fnToRun();
     if (ok) toast.success(ok);

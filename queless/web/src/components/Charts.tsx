@@ -5,10 +5,10 @@ import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAx
 
 const axis = { fill: 'var(--muted)', fontSize: 12, fontFamily: 'Mona Sans, Inter, sans-serif' };
 
-function ChartTooltip({ active, payload, label }) {
+function ChartTooltip({ active, payload, label }: { active?: boolean; payload?: any[]; label?: any }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="rounded-xl border border-line bg-surface px-3 py-2 text-xs shadow-[var(--shadow)]">
+    <div className="rounded-xl border border-line bg-surface px-3 py-2 text-xs shadow-(--shadow)">
       <p className="mb-1 font-bold">{label}</p>
       {payload.map((p) => (
         <p key={p.name} className="flex items-center gap-2">
@@ -25,7 +25,7 @@ export function Bars({ data, x, series, height = 260, layout = 'horizontal' }) {
   const vertical = layout === 'vertical';
   return (
     <ResponsiveContainer width="100%" height={height}>
-      <BarChart data={data} layout={layout} margin={{ top: 8, right: 12, bottom: 0, left: vertical ? 24 : -12 }} barGap={2} barCategoryGap="28%">
+      <BarChart data={data} layout={layout as any} margin={{ top: 8, right: 12, bottom: 0, left: vertical ? 24 : -12 }} barGap={2} barCategoryGap="28%">
         <CartesianGrid stroke="var(--grid)" strokeDasharray="3 4" vertical={vertical} horizontal={!vertical} />
         {vertical ? (
           <>
@@ -58,7 +58,7 @@ export function Heatmap({ cells }) {
   const shade = (p) => `color-mix(in srgb, var(--chart-1) ${p}%, var(--surface))`;
   return (
     <div className="overflow-x-auto">
-      <table className="border-separate border-spacing-[3px] text-[11px]" aria-label="Busy hours heatmap">
+      <table className="border-separate border-spacing-0.75 text-[11px]" aria-label="Busy hours heatmap">
         <thead>
           <tr>
             <th />

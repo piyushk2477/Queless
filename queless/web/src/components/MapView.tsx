@@ -40,13 +40,13 @@ function ClickToPick({ onPick }) {
 }
 
 /** OpenStreetMap via Leaflet — free, no API key. */
-export function MapView({ pins, center, height = 420, onPick, picked }) {
+export function MapView({ pins, center, height = 420, onPick, picked }: { pins: any[]; center?: [number, number] | number[]; height?: number; onPick?: (lat: number, lng: number) => void; picked?: [number, number] | number[] }) {
   return (
     <div className="card overflow-hidden" style={{ height }}>
-      <MapContainer center={center ?? [18.5204, 73.8567]} zoom={13} style={{ height: '100%', width: '100%' }} scrollWheelZoom={false}>
+      <MapContainer center={(center ?? [18.5204, 73.8567]) as [number, number]} zoom={13} style={{ height: '100%', width: '100%' }} scrollWheelZoom={false}>
         <TileLayer attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         {!onPick && <FitBounds pins={pins} center={center} />}
-        {center && !onPick && <Marker position={center} icon={pinIcon(undefined, '★')} />}
+        {center && !onPick && <Marker position={center as [number, number]} icon={pinIcon(undefined, '★')} />}
         {pins.map((p, i) => (
           <Marker key={p.id} position={[p.lat, p.lng]} icon={pinIcon(p.traffic, String(i + 1))}>
             <Popup>
@@ -58,7 +58,7 @@ export function MapView({ pins, center, height = 420, onPick, picked }) {
         ))}
         {onPick && <ClickToPick onPick={onPick} />}
         {onPick && <Recenter center={center} />}
-        {picked && <Marker position={picked} icon={pinIcon(undefined, '●')} />}
+        {picked && <Marker position={picked as [number, number]} icon={pinIcon(undefined, '●')} />}
       </MapContainer>
     </div>
   );

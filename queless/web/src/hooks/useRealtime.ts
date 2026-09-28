@@ -26,7 +26,7 @@ export function useBroadcasts(queueIds) {
 }
 
 /** In-app notifications for the logged-in user (+ live pushes to room user:<id>). */
-export function useNotifications(userId, onNew) {
+export function useNotifications(userId, onNew?) {
   const [items, setItems] = useState([]);
   const onNewRef = useRef(onNew);
   onNewRef.current = onNew;

@@ -35,7 +35,7 @@ export default function Discover() {
 
   const update = (patch) => {
     const next = new URLSearchParams(params);
-    for (const [k, v] of Object.entries(patch)) (v == null || v === '' ? next.delete(k) : next.set(k, v));
+    for (const [k, v] of Object.entries(patch)) (v == null || v === '' ? next.delete(k) : next.set(k, String(v)));
     setParams(next, { replace: true });
   };
 

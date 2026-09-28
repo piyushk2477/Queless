@@ -10,7 +10,7 @@ export function setCookie(name, value, days) {
   document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax`;
 }
 
-const safe = (fnToTry, fallback) => {
+const safe = <T,>(fnToTry: () => T, fallback?: T): T | undefined => {
   try {
     return fnToTry();
   } catch {
@@ -29,13 +29,13 @@ export function getDeviceId() {
 }
 
 /** The reception tablet's kiosk key (also kept in localStorage in case cookies are cleared). */
-export const getKioskKey = () => safe(() => localStorage.getItem('ql_kiosk'), null);
+export const getKioskKey = (): string | null => safe(() => localStorage.getItem('ql_kiosk'), null) ?? null;
 export function setKioskKey(key) {
   safe(() => (key ? localStorage.setItem('ql_kiosk', key) : localStorage.removeItem('ql_kiosk')));
 }
 
 /** Guest tokens joined on this device (so "My tokens" works without an account). */
-export const getGuestTokens = () => safe(() => JSON.parse(localStorage.getItem('ql_guest_tokens') ?? '[]'), []);
+export const getGuestTokens = (): any[] => safe(() => JSON.parse(localStorage.getItem('ql_guest_tokens') ?? '[]'), []) ?? [];
 export function addGuestToken(t) {
   safe(() => localStorage.setItem('ql_guest_tokens', JSON.stringify([t, ...getGuestTokens()].slice(0, 20))));
 }

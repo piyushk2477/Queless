@@ -28,7 +28,7 @@ export function AdminLayout() {
   );
 }
 
-const run = async (fnToRun, ok) => {
+const run = async (fnToRun, ok?) => {
   try {
     await fnToRun();
     if (ok) toast.success(ok);
@@ -45,7 +45,7 @@ export function AdminBusinesses() {
   const [rejecting, setRejecting] = useState(null);
   const [reason, setReason] = useState('');
   const { data, isLoading, refetch } = useQuery({ queryKey: ['admin-biz', tab], queryFn: async () => (await api(`/admin/businesses?status=${tab}`)).businesses });
-  const act = (b, action, body) => void run(() => api(`/admin/businesses/${b.id}/${action}`, { method: 'POST', body }), `${b.name}: ${action}d`).then(() => refetch());
+  const act = (b, action, body = undefined) => void run(() => api(`/admin/businesses/${b.id}/${action}`, { method: 'POST', body }), `${b.name}: ${action}d`).then(() => refetch());
 
   return (
     <>
@@ -59,7 +59,7 @@ export function AdminBusinesses() {
                 <Avatar name={b.name} fileId={b.logo_file_id} size={60} />
                 <div className="min-w-0 flex-1">
                   <p className="text-xl font-semibold leading-tight">{b.name}</p>
-                  <p className="kicker mt-1 !text-xs">{b.category_icon} {b.category_name}</p>
+                  <p className="kicker mt-1 text-xs!">{b.category_icon} {b.category_name}</p>
                   <p className="mt-2 text-sm">{b.address}, {b.pincode}</p>
                   <p className="text-xs text-muted">Owner: {b.owner_name ?? '—'} · {b.owner_email ?? 'seed data'} · {dateTimeIST(b.created_at)}</p>
                   {b.reject_reason && <p className="mt-2 text-sm font-semibold text-accent-ink">Reason: {b.reject_reason}</p>}
@@ -126,13 +126,13 @@ export function AdminCategories() {
           <p className="mb-4 mt-1 text-sm text-muted">"ear pain" → ENT means a search for ear pain finds businesses with a service tagged ENT.</p>
           <form className="mb-4 grid gap-2 sm:grid-cols-[1fr_1fr_1fr_auto]" onSubmit={(e) => { e.preventDefault(); void run(() => api('/admin/keywords', { method: 'POST', body: { ...kw, categoryId: Number(kw.categoryId) } })).then(() => { setKw({ ...kw, keyword: '', serviceTag: '' }); void refetch(); }); }}>
             <Input value={kw.keyword} onChange={(e) => setKw({ ...kw, keyword: e.target.value })} placeholder="ear pain" />
-            <Select value={kw.categoryId} onChange={(e) => setKw({ ...kw, categoryId: e.target.value })}>{data?.categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</Select>
+            <Select value={kw.categoryId} onChange={(e) => setKw({ ...kw, categoryId: Number(e.target.value) })}>{data?.categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</Select>
             <Input value={kw.serviceTag} onChange={(e) => setKw({ ...kw, serviceTag: e.target.value })} placeholder="ENT" />
             <Button type="submit" size="sm" variant="primary" aria-label="Add"><Plus size={15} /></Button>
           </form>
           <ul className="flex max-h-80 flex-wrap gap-2 overflow-y-auto">
             {data?.keywords.map((k) => (
-              <li key={k.id}><button className="chip hover:!border-bad" title="Click to delete" onClick={() => confirm(`Delete "${k.keyword}"?`) && void run(() => api(`/admin/keywords/${k.id}`, { method: 'DELETE' })).then(() => refetch())}>{k.keyword} → {k.service_tag} ✕</button></li>
+              <li key={k.id}><button className="chip hover:border-bad!" title="Click to delete" onClick={() => confirm(`Delete "${k.keyword}"?`) && void run(() => api(`/admin/keywords/${k.id}`, { method: 'DELETE' })).then(() => refetch())}>{k.keyword} → {k.service_tag} ✕</button></li>
             ))}
           </ul>
         </div>

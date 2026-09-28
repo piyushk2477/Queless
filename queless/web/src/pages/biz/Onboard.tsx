@@ -15,7 +15,7 @@ const defaultHours = () => Object.fromEntries(DAYS.map((d) => [d, d === 'sun' ? 
 const STEPS = ['Details', 'Location', 'Hours', 'Documents', 'Review'];
 
 /** 5-step onboarding wizard. With `existing` it becomes the edit form. */
-export function BusinessForm({ existing, onSaved }) {
+export function BusinessForm({ existing, onSaved }: { existing?: any; onSaved?: () => void }) {
   const navigate = useNavigate();
   const { refresh } = useAuth();
   const [step, setStep] = useState(0);
@@ -194,7 +194,7 @@ export function BusinessForm({ existing, onSaved }) {
               [true, `${Object.values(f.hours).filter(Boolean).length} open days ${f.wheelchair ? '· ♿ ' : ''}${f.parking ? '· 🅿' : ''}`],
               [!!f.kycFileId || !!existing, f.kycFileId ? 'KYC document uploaded' : 'KYC document missing'],
             ].map(([ok, text]) => (
-              <li key={text} className="flex items-center gap-3 rounded-2xl border border-line p-3.5">
+              <li key={String(text)} className="flex items-center gap-3 rounded-2xl border border-line p-3.5">
                 <span className="flex h-7 w-7 items-center justify-center rounded-lg text-white" style={{ background: ok ? 'var(--ok)' : 'var(--bad)' }}>{ok ? <Check size={15} /> : <X size={15} />}</span>
                 {text}
               </li>

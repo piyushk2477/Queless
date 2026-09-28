@@ -2,6 +2,7 @@
 import clsx from 'clsx';
 import { Check } from 'lucide-react';
 import { useEffect } from 'react';
+import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode, SelectHTMLAttributes, TextareaHTMLAttributes } from 'react';
 import { Link } from 'react-router-dom';
 import { fileUrl } from '../lib/api';
 import { initials } from '../lib/format';
@@ -12,7 +13,7 @@ export { clsx };
 /** variant: default | primary | accent | soft | ok | danger | ghost · size: sm | md | lg | xl */
 const btnClass = (variant, size, className) => clsx('btn', variant !== 'default' && `btn-${variant}`, size !== 'md' && `btn-${size}`, className);
 
-export function Button({ variant = 'default', size = 'md', loading, className, children, ...rest }) {
+export function Button({ variant = 'default', size = 'md', loading = false, className, children, ...rest }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: string; size?: string; loading?: boolean; children?: ReactNode }) {
   return (
     <button className={btnClass(variant, size, className)} disabled={loading || rest.disabled} {...rest}>
       {loading ? (
@@ -26,7 +27,7 @@ export function Button({ variant = 'default', size = 'md', loading, className, c
   );
 }
 
-export function ButtonLink({ to, variant = 'default', size = 'md', className, children, ...rest }) {
+export function ButtonLink({ to, variant = 'default', size = 'md', className, children, ...rest }: { to: string; variant?: string; size?: string; className?: string; children?: ReactNode } & Omit<React.ComponentProps<typeof Link>, 'to' | 'className' | 'children'>) {
   return (
     <Link to={to} className={btnClass(variant, size, className)} {...rest}>
       {children}
@@ -35,13 +36,13 @@ export function ButtonLink({ to, variant = 'default', size = 'md', className, ch
 }
 
 /** tone: default (white, bordered) | soft (grey) | accent (pink tint) | ink (dark) */
-export function Card({ className, children, hover, tone }) {
+export function Card({ className, children, hover, tone }: { className?: string; children?: ReactNode; hover?: boolean; tone?: string }) {
   const base = tone === 'soft' ? 'card-soft' : tone === 'accent' ? 'card-accent' : tone === 'ink' ? 'card-ink' : 'card';
   return <div className={clsx(base, hover && 'card-hover', className)}>{children}</div>;
 }
 
 /** A card with a small header row (title left, meta right). */
-export function Panel({ title, right, children, className }) {
+export function Panel({ title, right, children, className }: { title?: ReactNode; right?: ReactNode; children?: ReactNode; className?: string }) {
   return (
     <div className={clsx('card overflow-hidden', className)}>
       {(title || right) && (
@@ -55,9 +56,9 @@ export function Panel({ title, right, children, className }) {
   );
 }
 
-export const Pill = ({ tone, className, children }) => <span className={clsx('pill', tone === 'accent' && 'pill-accent', className)}>{children}</span>;
+export const Pill = ({ tone, className, children }: { tone?: string; className?: string; children?: ReactNode }) => <span className={clsx('pill', tone === 'accent' && 'pill-accent', className)}>{children}</span>;
 
-export function Chip({ on, onClick, children, className, title }) {
+export function Chip({ on, onClick, children, className, title }: { on?: boolean; onClick?: () => void; children?: ReactNode; className?: string; title?: string }) {
   if (!onClick) return <span className={clsx('chip', on && 'chip-on', className)} title={title}>{children}</span>;
   return (
     <button type="button" aria-pressed={!!on} onClick={onClick} className={clsx('chip', on && 'chip-on', className)} title={title}>
@@ -80,7 +81,7 @@ export function CheckList({ items, className }) {
   );
 }
 
-export function PageHeader({ title, kicker, sub, children }) {
+export function PageHeader({ title, kicker, sub, children }: { title: ReactNode; kicker?: ReactNode; sub?: ReactNode; children?: ReactNode }) {
   return (
     <div className="mb-10 flex flex-wrap items-end justify-between gap-5">
       <div className="max-w-3xl">
@@ -96,7 +97,7 @@ export function PageHeader({ title, kicker, sub, children }) {
 export const Divider = ({ className }) => <hr className={clsx('divider', className)} />;
 
 /** Round avatar with initials (or the uploaded logo). */
-export function Avatar({ name, fileId, size = 56, className }) {
+export function Avatar({ name, fileId, size = 56, className }: { name?: string; fileId?: string | null; size?: number; className?: string }) {
   const src = fileUrl(fileId);
   if (src)
     return <img src={src} alt="" width={size} height={size} className={clsx('shrink-0 rounded-full border border-line object-cover', className)} style={{ width: size, height: size }} />;
@@ -108,7 +109,7 @@ export function Avatar({ name, fileId, size = 56, className }) {
 }
 
 /** Round icon badge. tone: accent (pink tint) | ink | soft */
-export const IconTile = ({ children, tone = 'accent', className }) => (
+export const IconTile = ({ children, tone = 'accent', className }: { children?: ReactNode; tone?: string; className?: string }) => (
   <span
     className={clsx('inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full', className)}
     style={
@@ -124,7 +125,7 @@ export const IconTile = ({ children, tone = 'accent', className }) => (
 );
 
 /** Crowd badge: dot + text (never colour alone). */
-export function TrafficBadge({ traffic, count, size = 'md' }) {
+export function TrafficBadge({ traffic, count, size = 'md' }: { traffic: string; count?: number; size?: string }) {
   const m = TRAFFIC_META[traffic] ?? TRAFFIC_META.GREEN;
   return (
     <span
@@ -155,7 +156,7 @@ export function StatusPill({ status }) {
   );
 }
 
-export function Field({ label, error, hint, children, className }) {
+export function Field({ label, error, hint, children, className }: { label: ReactNode; error?: ReactNode; hint?: ReactNode; children?: ReactNode; className?: string }) {
   return (
     <label className={clsx('block', className)}>
       <span className="label">{label}</span>
@@ -166,11 +167,11 @@ export function Field({ label, error, hint, children, className }) {
   );
 }
 
-export const Input = ({ className, ...p }) => <input className={clsx('input', className)} {...p} />;
-export const Textarea = ({ className, ...p }) => <textarea className={clsx('input min-h-24', className)} {...p} />;
-export const Select = ({ className, ...p }) => <select className={clsx('input cursor-pointer', className)} {...p} />;
+export const Input = ({ className, ...p }: InputHTMLAttributes<HTMLInputElement>) => <input className={clsx('input', className)} {...p} />;
+export const Textarea = ({ className, ...p }: TextareaHTMLAttributes<HTMLTextAreaElement>) => <textarea className={clsx('input min-h-24', className)} {...p} />;
+export const Select = ({ className, ...p }: SelectHTMLAttributes<HTMLSelectElement>) => <select className={clsx('input cursor-pointer', className)} {...p} />;
 
-export function Checkbox({ checked, onChange, label, required, hint }) {
+export function Checkbox({ checked, onChange, label, required, hint }: { checked: boolean; onChange: (checked: boolean) => void; label: ReactNode; required?: boolean; hint?: ReactNode }) {
   return (
     <label className={clsx('flex cursor-pointer items-start gap-3 rounded-2xl border p-3.5 transition-colors', checked ? 'border-accent bg-accent-soft' : 'border-line hover:border-ink/40')}>
       <input type="checkbox" className="sr-only" checked={checked} onChange={(e) => onChange(e.target.checked)} />
@@ -208,7 +209,7 @@ export function Spinner({ label = 'Loading' }) {
 
 export const Skeleton = ({ className }) => <div className={clsx('animate-pulse rounded-2xl bg-surface-2', className)} />;
 
-export function EmptyState({ icon = '✨', title, children }) {
+export function EmptyState({ icon = '✨', title, children }: { icon?: ReactNode; title: ReactNode; children?: ReactNode }) {
   return (
     <div className="card-soft flex flex-col items-center gap-2 px-6 py-14 text-center">
       <span className="text-3xl" aria-hidden>{icon}</span>
@@ -218,7 +219,7 @@ export function EmptyState({ icon = '✨', title, children }) {
   );
 }
 
-export function StatCard({ label, value, sub, tone }) {
+export function StatCard({ label, value, sub, tone }: { label: ReactNode; value: ReactNode; sub?: ReactNode; tone?: string }) {
   return (
     <div className={clsx(tone === 'accent' ? 'card-accent' : 'card', 'p-5')}>
       <p className="text-sm text-muted">{label}</p>
@@ -228,7 +229,7 @@ export function StatCard({ label, value, sub, tone }) {
   );
 }
 
-export function Modal({ open, onClose, title, children, wide }) {
+export function Modal({ open, onClose, title, children, wide = false }: { open: boolean; onClose: () => void; title: string; children?: ReactNode; wide?: boolean }) {
   useEffect(() => {
     if (!open) return undefined;
     const onKey = (e) => e.key === 'Escape' && onClose();
@@ -237,11 +238,11 @@ export function Modal({ open, onClose, title, children, wide }) {
   }, [open, onClose]);
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-[1000] flex items-start justify-center overflow-y-auto bg-[rgba(13,12,34,0.4)] p-4 pt-[7vh] backdrop-blur-sm" onClick={onClose}>
-      <div role="dialog" aria-modal="true" aria-label={title} className={clsx('pop-in w-full rounded-3xl bg-surface p-6 shadow-[var(--shadow-lg)] sm:p-8', wide ? 'max-w-3xl' : 'max-w-lg')} onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 z-1000 flex items-start justify-center overflow-y-auto bg-[rgba(13,12,34,0.4)] p-4 pt-[7vh] backdrop-blur-sm" onClick={onClose}>
+      <div role="dialog" aria-modal="true" aria-label={title} className={clsx('pop-in w-full rounded-3xl bg-surface p-6 shadow-(--shadow-lg) sm:p-8', wide ? 'max-w-3xl' : 'max-w-lg')} onClick={(e) => e.stopPropagation()}>
         <div className="mb-6 flex items-start justify-between gap-4">
           <h2 className="text-xl">{title}</h2>
-          <button onClick={onClose} className="btn btn-ghost btn-sm !px-2.5" aria-label="Close">✕</button>
+          <button onClick={onClose} className="btn btn-ghost btn-sm px-2.5!" aria-label="Close">✕</button>
         </div>
         {children}
       </div>
@@ -263,7 +264,7 @@ export function Tabs({ value, onChange, items }) {
 }
 
 /** tone: accent | danger | info */
-export function Banner({ tone = 'accent', children }) {
+export function Banner({ tone = 'accent', children, className }: { tone?: string; children?: ReactNode; className?: string }) {
   const style =
     tone === 'danger'
       ? { background: 'color-mix(in srgb, var(--bad) 10%, transparent)', color: 'var(--bad)' }
@@ -271,7 +272,7 @@ export function Banner({ tone = 'accent', children }) {
         ? { background: 'var(--surface-2)', color: 'var(--ink)' }
         : { background: 'var(--accent-soft)', color: 'var(--accent-ink)' };
   return (
-    <div className="mb-6 rounded-2xl px-5 py-3.5 text-[0.95rem] font-medium" style={style} role="status">
+    <div className={clsx('mb-6 rounded-2xl px-5 py-3.5 text-[0.95rem] font-medium', className)} style={style} role="status">
       {children}
     </div>
   );

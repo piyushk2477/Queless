@@ -11,7 +11,7 @@ import { socket, watchQueues } from '../lib/socket';
  */
 export function useQueueLive(queueIds) {
   const key = useMemo(() => [...new Set(queueIds)].sort().join(','), [queueIds]);
-  const [live, setLive] = useState({});
+  const [live, setLive] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

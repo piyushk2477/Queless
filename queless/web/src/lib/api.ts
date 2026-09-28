@@ -1,11 +1,20 @@
 import { getDeviceId, getKioskKey } from './cookies';
 
+export interface ApiOptions {
+  method?: string;
+  body?: unknown;
+  form?: BodyInit | null;
+}
+
 /** '' = same origin (recommended). Otherwise the API's full URL. */
 export const API_BASE = (import.meta.env.VITE_API_URL ?? '').replace(/\/$/, '');
 
 /** Every API error has the same shape: { code, message }. */
 export class ApiError extends Error {
-  constructor(status, code, message) {
+  status: number;
+  code: string;
+
+  constructor(status: number, code: string, message: string) {
     super(message);
     this.status = status;
     this.code = code;
@@ -19,13 +28,13 @@ export class ApiError extends Error {
  *  - X-Device-Id          → guest identity for QR joins
  *  - X-Kiosk-Key          → only on the reception tablet
  */
-export async function api(path, { method = 'GET', body, form } = {}) {
-  const headers = { 'X-Requested-With': 'queless', 'X-Device-Id': getDeviceId() };
+export async function api<T = any>(path: string, { method = 'GET', body, form }: ApiOptions = {}): Promise<T> {
+  const headers: Record<string, string> = { 'X-Requested-With': 'queless', 'X-Device-Id': getDeviceId() };
   const kiosk = getKioskKey();
   if (kiosk) headers['X-Kiosk-Key'] = kiosk;
   if (body !== undefined) headers['Content-Type'] = 'application/json';
 
-  let res;
+  let res: Response;
   try {
     res = await fetch(`${API_BASE}/api${path}`, {
       method,
@@ -36,14 +45,14 @@ export async function api(path, { method = 'GET', body, form } = {}) {
   } catch {
     throw new ApiError(0, 'NETWORK', 'Cannot reach the QueLess server. Is it running?');
   }
-  if (res.status === 204) return undefined;
+  if (res.status === 204) return undefined as T;
   const json = await res.json().catch(() => ({}));
   if (!res.ok) throw new ApiError(res.status, json.code ?? 'ERROR', json.message ?? res.statusText);
-  return json;
+  return json as T;
 }
 
 /** Upload a logo or KYC file (multipart). Returns the file id. */
-export async function uploadFile(kind, file) {
+export async function uploadFile(kind: string, file: File): Promise<string> {
   if (file.size > 2 * 1024 * 1024) throw new ApiError(400, 'VALIDATION', 'File must be under 2 MB');
   const form = new FormData();
   form.append('kind', kind);
@@ -52,10 +61,10 @@ export async function uploadFile(kind, file) {
   return saved.id;
 }
 
-export const fileUrl = (id) => (id ? `${API_BASE}/api/files/${id}` : null);
+export const fileUrl = (id?: string | null): string | null => (id ? `${API_BASE}/api/files/${id}` : null);
 
 /** Download from an authenticated endpoint (e.g. CSV export). */
-export async function downloadFile(path, filename) {
+export async function downloadFile(path: string, filename: string): Promise<void> {
   const res = await fetch(`${API_BASE}/api${path}`, { credentials: 'include' });
   if (!res.ok) throw new ApiError(res.status, 'DOWNLOAD', 'Download failed');
   const url = URL.createObjectURL(await res.blob());
@@ -63,4 +72,4 @@ export async function downloadFile(path, filename) {
   URL.revokeObjectURL(url);
 }
 
-export const errorMessage = (e) => (e instanceof Error ? e.message : 'Something went wrong');
+export const errorMessage = (e: unknown): string => (e instanceof Error ? e.message : 'Something went wrong');

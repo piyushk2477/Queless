@@ -11,7 +11,7 @@ import { formatDuration } from '../../lib/traffic';
 import { useBiz } from './BizLayout';
 import { BusinessForm } from './Onboard';
 
-export function QueueStatusButtons({ queue, current, onDone }) {
+export function QueueStatusButtons({ queue, current, onDone = () => {} }) {
   const [busy, setBusy] = useState(false);
   const setStatus = async (status) => {
     setBusy(true);

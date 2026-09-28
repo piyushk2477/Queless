@@ -1,5 +1,6 @@
 import { Bell, LogOut, Menu, Moon, Sun, Ticket, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import type { ReactNode } from 'react';
 import { Link, NavLink, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAuth } from '../hooks/useAuth';
@@ -9,7 +10,7 @@ import { chime } from '../lib/sound';
 import { useApp } from '../store/app';
 import { Spinner, clsx } from './ui';
 
-export function Logo({ className }) {
+export function Logo({ className }: { className?: string }) {
   return (
     <Link to="/" className={clsx('flex items-center gap-2', className)} aria-label="QueLess home">
       <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-ink text-sm font-bold text-bg">Q</span>
@@ -23,7 +24,7 @@ export function Logo({ className }) {
 function ThemeToggle() {
   const { theme, toggleTheme } = useApp();
   return (
-    <button onClick={toggleTheme} className="btn btn-ghost btn-sm !px-2.5" aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}>
+    <button onClick={toggleTheme} className="btn btn-ghost btn-sm px-2.5!" aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}>
       {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
     </button>
   );
@@ -85,13 +86,13 @@ function Navbar() {
   );
 
   return (
-    <header className={clsx('no-print sticky top-0 z-[500] bg-bg/90 backdrop-blur transition-shadow', scrolled && 'shadow-[0_1px_0_var(--line)]')}>
+    <header className={clsx('no-print sticky top-0 z-500 bg-bg/90 backdrop-blur transition-shadow', scrolled && 'shadow-[0_1px_0_var(--line)]')}>
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4">
         <Logo />
         <nav className="hidden items-center gap-8 md:flex">{links}</nav>
         <div className="flex items-center gap-1.5">
           {user && (
-            <Link to="/me/notifications" className="btn btn-ghost btn-sm relative !px-2.5" aria-label={`${unread} unread notifications`}>
+            <Link to="/me/notifications" className="btn btn-ghost btn-sm relative px-2.5!" aria-label={`${unread} unread notifications`}>
               <Bell size={18} />
               {unread > 0 && <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-accent" />}
             </Link>
@@ -110,7 +111,7 @@ function Navbar() {
               <Link to="/register" className="btn btn-primary btn-sm">Get started</Link>
             </>
           )}
-          <button className="btn btn-ghost btn-sm !px-2.5 md:hidden" onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-label="Menu">
+          <button className="btn btn-ghost btn-sm px-2.5! md:hidden" onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-label="Menu">
             {open ? <X size={18} /> : <Menu size={18} />}
           </button>
         </div>
@@ -177,12 +178,12 @@ export function AppShell() {
   );
 }
 
-export function Container({ children, className }) {
+export function Container({ children, className }: { children?: ReactNode; className?: string }) {
   return <div className={clsx('relative mx-auto w-full max-w-7xl px-5 py-10 sm:py-14', className)}>{children}</div>;
 }
 
 /** Route guard: needs a session (and optionally one of some roles). */
-export function Protected({ roles, children }) {
+export function Protected({ roles, children }: { roles?: string[]; children?: ReactNode }) {
   const { user, loading } = useAuth();
   const location = useLocation();
   if (loading) return <Spinner />;

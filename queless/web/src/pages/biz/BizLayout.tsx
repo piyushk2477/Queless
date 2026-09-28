@@ -4,8 +4,15 @@ import { NavLink, Outlet, useOutletContext, useParams } from 'react-router-dom';
 import { Container } from '../../components/Layout';
 import { Avatar, Banner, EmptyState, Spinner, StatusPill, clsx } from '../../components/ui';
 import { api } from '../../lib/api';
+import type { Business } from '../../types';
 
-export const useBiz = () => useOutletContext();
+export interface BizContext {
+  business: Business & Record<string, any>;
+  role: string;
+  refresh: () => void;
+}
+
+export const useBiz = () => useOutletContext<BizContext>();
 
 const LINKS = [
   { to: '', label: 'Overview', icon: LayoutDashboard },
